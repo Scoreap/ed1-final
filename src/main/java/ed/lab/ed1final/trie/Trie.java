@@ -1,10 +1,6 @@
 package ed.lab.ed1final.trie;
 
 import org.springframework.stereotype.Component;
-import org.w3c.dom.Node;
-
-import java.util.PriorityQueue;
-
 
 @Component
 public class Trie {
