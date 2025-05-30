@@ -1,68 +1,76 @@
 package ed.lab.ed1final.trie;
 
 import org.springframework.stereotype.Component;
-
+//final
 @Component
 public class Trie {
 
-    private Node root;
+    private final Node root;
 
     public Trie() {
         root = new Node();
     }
 
     public void insert(String word) {
-        Node temp = root;
-        for (char c : word.toCharArray()) {
-            if (temp.children[c - 'a'] == null) {
-                temp.children[c - 'a'] = new Node();
+        Node node = root;
+        for (char c : word.toLowerCase().toCharArray()) {
+            if (!isValidChar(c)) continue;
+            int index = c - 'a';
+            if (node.children[index] == null) {
+                node.children[index] = new Node();
             }
-            temp = temp.children[c - 'a'];
+            node = node.children[index];
+            node.prefixCount++;
         }
-        temp.isLast = true;
+        node.isLast = true;
+        node.count++; // palabra completa agregada
     }
 
     public int countWordsEqualTo(String word) {
-        int result = 0;
-        int i = 0;
-        for (char c : word.toCharArray()) {
-            if (c == word.charAt(i)) {
-                result++;
-                i++;
-            } else {
-                break;
-            }
+        Node node = root;
+        for (char c : word.toLowerCase().toCharArray()) {
+            if (!isValidChar(c)) continue;
+            int index = c - 'a';
+            if (node.children[index] == null) return 0;
+            node = node.children[index];
         }
-        return result;
+        return node.isLast ? node.count : 0;
     }
 
     public int countWordsStartingWith(String prefix) {
-        int result = 0;
-        Node current = root;
-            for(char c:prefix.toCharArray()){
-               if(current.children[c-'a'] == null)
-                    return 0;
-
-               current=current.children[c-'a'];
-               result++;
-            }
-        return result;
+        Node node = root;
+        for (char c : prefix.toLowerCase().toCharArray()) {
+            if (!isValidChar(c)) continue;
+            int index = c - 'a';
+            if (node.children[index] == null) return 0;
+            node = node.children[index];
+        }
+        return node.prefixCount;
     }
 
     public void erase(String word) {
+        if (countWordsEqualTo(word) == 0) return;
+        Node node = root;
+        for (char c : word.toLowerCase().toCharArray()) {
+            if (!isValidChar(c)) continue;
+            int index = c - 'a';
+            node = node.children[index];
+            node.prefixCount--;
+        }
+        node.count--;
+        if (node.count == 0) node.isLast = false;
+    }
 
-
+    //validar caracteres raros
+    private boolean isValidChar(char c) {
+        return c >= 'a' && c <= 'z';
     }
 
     //Crear Nodo
     private static class Node {
-        public Node[] children;
-        public boolean isLast;
-
-        public Node() {
-            children = new Trie.Node[26];
-            isLast = false;
-        }
+        public Node[] children = new Node[26];
+        public boolean isLast = false;
+        public int count = 0;
+        public int prefixCount = 0;
     }
-
 }
